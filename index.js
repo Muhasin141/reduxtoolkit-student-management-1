@@ -31,14 +31,7 @@ app.get("/students", async (req, res) => {
 // ================= ADD STUDENT =================
 app.post("/students", async (req, res) => {
   try {
-    const {
-      name,
-      age,
-      gender,
-      marks,
-      attendance,
-      grade,
-    } = req.body;
+    const { name, age, gender, marks, attendance, grade } = req.body;
 
     // ✅ Validation
     if (!name || !age) {
@@ -47,12 +40,18 @@ app.post("/students", async (req, res) => {
       });
     }
 
+    if (!gender) {
+      return res.status(400).json({
+        error: "Gender is required",
+      });
+    }
+
     const newStudent = new Student({
       name,
       age: Number(age),
       gender,
-      marks: marks ? Number(marks) : null,
-      attendance: attendance ? Number(attendance) : null,
+      marks: marks !== "" ? Number(marks) : null,
+      attendance: attendance !== "" ? Number(attendance) : null,
       grade,
     });
 
@@ -72,16 +71,16 @@ app.put("/students/:id", async (req, res) => {
 
     const updatedData = {
       ...req.body,
-      marks: req.body.marks ? Number(req.body.marks) : null,
-      attendance: req.body.attendance
-        ? Number(req.body.attendance)
-        : null,
+      age: req.body.age ? Number(req.body.age) : undefined,
+      marks: req.body.marks !== "" ? Number(req.body.marks) : null,
+      attendance:
+        req.body.attendance !== "" ? Number(req.body.attendance) : null,
     };
 
     const updatedStudent = await Student.findByIdAndUpdate(
       studentId,
       updatedData,
-      { new: true }
+      { new: true },
     );
 
     if (!updatedStudent) {
