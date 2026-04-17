@@ -31,15 +31,30 @@ app.get("/students", async (req, res) => {
 // ================= ADD STUDENT =================
 app.post("/students", async (req, res) => {
   try {
-    const { name, age } = req.body;
+    const {
+      name,
+      age,
+      gender,
+      marks,
+      attendance,
+      grade,
+    } = req.body;
 
-    // ✅ Basic validation
+    // ✅ Validation
     if (!name || !age) {
-      return res.status(400).json({ error: "Name and Age are required" });
+      return res.status(400).json({
+        error: "Name and Age are required",
+      });
     }
 
-    // ✅ Accept all fields
-    const newStudent = new Student(req.body);
+    const newStudent = new Student({
+      name,
+      age: Number(age),
+      gender,
+      marks: marks ? Number(marks) : null,
+      attendance: attendance ? Number(attendance) : null,
+      grade,
+    });
 
     const savedStudent = await newStudent.save();
 
@@ -55,10 +70,18 @@ app.put("/students/:id", async (req, res) => {
   try {
     const studentId = req.params.id;
 
+    const updatedData = {
+      ...req.body,
+      marks: req.body.marks ? Number(req.body.marks) : null,
+      attendance: req.body.attendance
+        ? Number(req.body.attendance)
+        : null,
+    };
+
     const updatedStudent = await Student.findByIdAndUpdate(
       studentId,
-      req.body, // ✅ updates all fields
-      { new: true },
+      updatedData,
+      { new: true }
     );
 
     if (!updatedStudent) {
